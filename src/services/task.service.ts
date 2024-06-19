@@ -14,13 +14,15 @@ const createTask = async (title: string, description: string, userId: number): P
 };
 
 const getTaskById = async (taskId: number): Promise<Task | null> => {
-    return prisma.user.findUnique({
+    return prisma.task.findUnique({
         where: { id: taskId },
     }) as Promise<Task | null>;
 };
 
-const getAllTasks = async (): Promise<Task[]> => {
-    return prisma.task.findMany();
+const getAllUserTasks = async (userId: number): Promise<Task[]> => {
+    return prisma.task.findMany({
+        where: { userId },
+    });
 };
 
 const updateTaskById = async (taskId: number, updateBody: Prisma.TaskUpdateInput): Promise<Task> => {
@@ -46,7 +48,7 @@ const deleteTaskById = async (taskId: number): Promise<Task> => {
 export default {
     createTask,
     getTaskById,
-    getAllTasks,
+    getAllUserTasks,
     updateTaskById,
     deleteTaskById,
 };
