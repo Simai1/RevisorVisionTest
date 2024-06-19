@@ -4,32 +4,32 @@ import httpStatus from 'http-status';
 import authService from '../services/auth.service';
 
 const register = catchAsync(async ({ body: { email, password } }, res) => {
-	if (!email) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing email');
-	if (!password) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing password');
+    if (!email) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing email');
+    if (!password) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing password');
 
-	const data = await authService.register(email, password);
-	res.cookie('refreshToken', data.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
-	res.json(data);
+    const data = await authService.register(email, password);
+    res.cookie('refreshToken', data.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+    res.json(data);
 });
 
 const login = catchAsync(async ({ body: { email, password } }, res) => {
-	if (!email) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing email');
-	if (!password) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing password');
+    if (!email) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing email');
+    if (!password) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing password');
 
-	const data = await authService.register(email, password);
-	res.cookie('refreshToken', data.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
-	res.json(data);
+    const data = await authService.register(email, password);
+    res.cookie('refreshToken', data.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+    res.json(data);
 });
 
 const logout = catchAsync(async (req, res) => {
-	const refreshToken = req.cookies;
-	await authService.logout(refreshToken);
-	res.clearCookie('refreshToken');
-	res.json({ status: 'OK' });
+    const refreshToken = req.cookies;
+    await authService.logout(refreshToken);
+    res.clearCookie('refreshToken');
+    res.json({ status: 'OK' });
 });
 
 export default {
-	register,
-	login,
-	logout,
+    register,
+    login,
+    logout,
 };
