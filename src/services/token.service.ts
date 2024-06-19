@@ -14,7 +14,7 @@ const createToken = async (userId: number, refreshToken: string): Promise<Token>
 };
 
 const getTokenByUserId = async (userId: number): Promise<Token | null> => {
-    if (await userService.getUserById(userId)) {
+    if (!(await userService.getUserById(userId))) {
         throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
     }
     return prisma.token.findUnique({
