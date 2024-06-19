@@ -3,12 +3,13 @@ import catchAsync from '../utils/catchAsync';
 import ApiError from '../utils/ApiError';
 import taskService from '../services/task.service';
 
-const create = catchAsync(async ({ body: { title, description, userId } }, res) => {
+const create = catchAsync(async (req, res) => {
+    const { title, description } = req.body;
+    const user = req.user;
     if (!title) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing title');
     if (!description) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing description');
-    if (!userId) throw new ApiError(httpStatus.BAD_REQUEST, 'Missing userId');
 
-    const task = await taskService.createTask(title, description, userId);
+    const task = await taskService.createTask(title, description, user.id);
 
     res.json(task);
 });

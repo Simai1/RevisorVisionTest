@@ -33,7 +33,7 @@ const login = async (email: string, password: string): Promise<data> => {
     }
     const user = (await userService.getUserByEmail(email)) as User;
     // if (!user || !user.validatePassword(password)) throw new AppErrorInvalid("login or password");
-    if (!isPasswordMatch(password, user.password)){
+    if (!isPasswordMatch(password, user.password)) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Wrong password');
     }
     const userDto = new UserDto(user);
@@ -52,8 +52,13 @@ const logout = async (refreshToken: string): Promise<void> => {
     await jwtUtil.removeToken(refreshToken);
 };
 
+const refresh = async (refreshToken: string): Promise<data> => {
+    return await jwtUtil.refresh(refreshToken);
+};
+
 export default {
     register,
     login,
     logout,
+    refresh,
 };

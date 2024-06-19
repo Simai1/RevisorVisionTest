@@ -1,4 +1,4 @@
-import { Task, Prisma } from '@prisma/client';
+import { Prisma, Task } from '@prisma/client';
 import prisma from '../client';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
@@ -8,7 +8,7 @@ const createTask = async (title: string, description: string, userId: number): P
         data: {
             title,
             description,
-            userId,
+            userId: userId,
         },
     });
 };
@@ -28,11 +28,10 @@ const updateTaskById = async (taskId: number, updateBody: Prisma.TaskUpdateInput
     if (!task) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Task not found');
     }
-    const updatedUser = await prisma.task.update({
+    return await prisma.task.update({
         where: { id: task.id },
         data: updateBody,
     });
-    return updatedUser;
 };
 
 const deleteTaskById = async (taskId: number): Promise<Task> => {

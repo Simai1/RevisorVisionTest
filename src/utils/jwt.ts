@@ -1,6 +1,15 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv'; // eslint-disable-line
 import tokenService from '../services/token.service';
+import ApiError from './ApiError';
+import httpStatus from 'http-status';
+import userService from '../services/user.service';
+import UserDto from '../dtos/user-dto';
+import { User } from '@prisma/client';
+
+type JwtPayload = {
+    id: number;
+};
 
 const generate = (payload: string | Buffer | object) => {
     const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET as string, { expiresIn: '30m' });
@@ -39,6 +48,27 @@ const decode = (token: string) => {
     return jwt.decode(token);
 };
 
+const refresh = async (refreshToken: string) => {
+    if (!refreshToken) {
+        throw new ApiError(httpStatus.UNAUTHORIZED, 'User  unauthorized');
+    }
+    const userData = verifyRefreshToken(refreshToken) as JwtPayload;
+    const tokenFromDb = await findToken(refreshToken);
+    if (!userData || !tokenFromDb) {
+        throw new ApiError(httpStatus.UNAUTHORIZED, 'User  unauthorized');
+    }
+
+    const user = await userService.getUserById(userData.id);
+    if (!user) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    }
+    const userDto = new UserDto(user as User);
+    const tokens = generate({ ...userDto });
+
+    await saveToken(userDto.id, tokens.refreshToken);
+    return { ...tokens, user: userDto };
+};
+
 export default {
     generate,
     saveToken,
@@ -47,4 +77,5 @@ export default {
     verifyRefreshToken,
     findToken,
     decode,
+    refresh,
 };
