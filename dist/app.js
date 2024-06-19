@@ -4,5 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const auth_1 = __importDefault(require("./routes/auth"));
+const task_1 = __importDefault(require("./routes/task"));
 const app = (0, express_1.default)();
-app.listen(3000);
+app.use(express_1.default.json({ limit: '10mb' }));
+app.use(express_1.default.urlencoded({ extended: true }));
+app.use('/auth', auth_1.default);
+app.use('/tasks', task_1.default);
+exports.default = app;
