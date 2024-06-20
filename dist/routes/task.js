@@ -12,6 +12,6 @@ const router = (0, express_1.Router)();
 router.route('/').post(verify_token_1.default.auth, (0, validate_1.default)(task_validation_1.default.create), task_controller_1.default.create);
 router.route('/').get(verify_token_1.default.auth, task_controller_1.default.getAll);
 router.route('/:taskId').get(verify_token_1.default.auth, (0, validate_1.default)(task_validation_1.default.taskId), task_controller_1.default.getOne);
-router.route('/:taskId').put(verify_token_1.default.auth, (0, validate_1.default)(task_validation_1.default.taskId), task_controller_1.default.update);
+router.route('/:taskId').put(verify_token_1.default.auth, (0, validate_1.default)(task_validation_1.default.update), task_controller_1.default.update);
 router.route('/:taskId').delete(verify_token_1.default.auth, (0, validate_1.default)(task_validation_1.default.taskId), task_controller_1.default.deleteTask);
 exports.default = router;
