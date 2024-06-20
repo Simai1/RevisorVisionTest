@@ -22,7 +22,7 @@ const login = catchAsync(async ({ body: { email, password } }, res) => {
 });
 
 const logout = catchAsync(async (req, res) => {
-    const refreshToken = req.cookies.refreshToken;
+    const { refreshToken } = req.cookies;
     await authService.logout(refreshToken);
     res.clearCookie('refreshToken');
     res.json({ status: 'OK' });
