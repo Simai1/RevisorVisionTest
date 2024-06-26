@@ -3,6 +3,7 @@ import catchAsync from '../utils/catchAsync';
 import ApiError from '../utils/ApiError';
 import taskService from '../services/task.service';
 import TaskDto from '../dtos/task-dto';
+import redisClient from '../index';
 
 const create = catchAsync(async (req, res) => {
     const { title, description } = req.body;
@@ -32,12 +33,28 @@ const getOne = catchAsync(async (req, res) => {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Missing taskId');
     }
 
-    const task = await taskService.getTaskById(Number(taskId));
-    if (!task) {
-        throw new ApiError(httpStatus.NOT_FOUND, 'Task not found');
+    const key = `task:${taskId}`;
+    const raw = await redisClient.get(key);
+    let taskDto;
+    if (raw) {
+        taskDto = JSON.parse(raw);
+    } else {
+        const task = await taskService.getTaskById(Number(taskId));
+        if (!task) {
+            throw new ApiError(httpStatus.NOT_FOUND, 'Task not found');
+        }
+
+        taskDto = new TaskDto(task);
+
+        await redisClient.setEx(key, 600, JSON.stringify(taskDto));
     }
 
-    const taskDto = new TaskDto(task);
+    // let taskDto;
+    // const task = await taskService.getTaskById(Number(taskId));
+    // if (!task) {
+    //     throw new ApiError(httpStatus.NOT_FOUND, 'Task not found');
+    // }
+    // taskDto = new TaskDto(task);
 
     res.json(taskDto);
 });
@@ -60,6 +77,13 @@ const update = catchAsync(async (req, res) => {
 
     const taskDto = new TaskDto(task);
 
+    const key = `task:${taskId}`;
+    const raw = await redisClient.get(key);
+
+    if (raw) {
+        await redisClient.set(key, JSON.stringify(taskDto));
+    }
+
     res.json(taskDto);
 });
 
@@ -69,6 +93,13 @@ const deleteTask = catchAsync(async (req, res) => {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Missing taskId');
     }
     await taskService.deleteTaskById(Number(taskId));
+
+    const key = `task:${taskId}`;
+    const raw = await redisClient.get(key);
+
+    if (raw) {
+        await redisClient.del(key);
+    }
 
     res.json({ status: 'OK' });
 });
